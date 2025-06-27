@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  mlflow:
+    image: iragca/mlflow:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - mlflow-data:/app/mlruns # Store runs outside the container
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=/app/mlruns
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/app/mlruns
+
+volumes:
+  mlflow-data:
