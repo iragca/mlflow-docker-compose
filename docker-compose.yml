@@ -1,15 +1,35 @@
-version: "3.8"
-
 services:
-  mlflow:
-    image: iragca/mlflow:latest
-    ports:
-      - "8080:8080"
-    volumes:
-      - mlflow-data:/app/mlruns # Store runs outside the container
+  postgres:
+    image: postgres:13
+    container_name: mlflow_postgres
     environment:
-      - MLFLOW_BACKEND_STORE_URI=/app/mlruns
-      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/app/mlruns
+      POSTGRES_USER: mlflow
+      POSTGRES_PASSWORD: mlflow
+      POSTGRES_DB: mlflow_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  mlflow:
+    build: .
+    container_name: mlflow_server
+    depends_on:
+      - postgres
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow:/app/mlflow/mlruns
+    environment:
+      MLFLOW_TRACKING_URI: http://0.0.0.0:5000
+    user: 0:0
+    command: >
+      mlflow server
+      --backend-store-uri postgresql://mlflow:mlflow@postgres:5432/mlflow_db
+      --default-artifact-root /app/mlflow/mlruns
+      --host 0.0.0.0
+      --port 5000
 
 volumes:
-  mlflow-data:
+  pg_data:
+  mlflow:

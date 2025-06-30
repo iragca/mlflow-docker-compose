@@ -1,13 +1,18 @@
-FROM python:3.13-slim
+FROM python:3.10-slim
 
-# Install MLflow
-RUN pip install --no-cache-dir mlflow
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    gcc \
+    git && \
+    rm -rf /var/lib/apt/lists/*
 
-# Create a working directory
+# Set workdir
 WORKDIR /app
 
-# Expose MLflow port
-EXPOSE 8080
+# Install MLflow and optionally extras like sklearn, torch, etc.
+RUN pip install --no-cache-dir mlflow[extras] psycopg2
 
-# Default command to run MLflow
-CMD ["mlflow", "server", "--host", "0.0.0.0", "--port", "8080"]
+# Set default command (overridden by docker-compose)
+CMD ["mlflow", "--help"]
