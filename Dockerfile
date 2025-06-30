@@ -8,9 +8,6 @@ RUN apt-get update && apt-get install -y \
     git && \
     rm -rf /var/lib/apt/lists/*
 
-# Set workdir
-WORKDIR /app
-
 # Install MLflow and optionally extras like sklearn, torch, etc.
 RUN pip install --no-cache-dir mlflow[extras] psycopg2
 
